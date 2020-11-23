@@ -188,7 +188,7 @@ def main():
                 out = model(content, style)
                 end = timer()
                 log.info('Wall-clock time took for stylization: ' + str(end - start) + 's')
-                # save_image(out, c_basename, s_basename, c_ext, args)
+                save_image(out, c_basename, s_basename, c_ext, args)
 
     log.info('Stylization completed, exiting.')
 
