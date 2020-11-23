@@ -189,6 +189,7 @@ def main():
                 end = timer()
                 log.info('Wall-clock time took for stylization: ' + str(end - start) + 's')
                 save_image(out, c_basename, s_basename, c_ext, args)
+                print("DONE")
 
     log.info('Stylization completed, exiting.')
 
