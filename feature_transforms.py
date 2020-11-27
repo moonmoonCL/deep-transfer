@@ -1,7 +1,10 @@
 import torch
+
+
 def wct(alpha, cf, sf, s1f=None, beta=None):
-   # content image whitening
-  cf = cf.double() # feature maps 
+
+    # content image whitening
+    cf = cf.double() # feature maps 
     c_channels, c_width, c_height = cf.size(0), cf.size(1), cf.size(2)
     cfv = cf.view(c_channels, -1)  # c x (h x w) feature maps matrix
 
