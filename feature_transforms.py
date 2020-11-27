@@ -1,10 +1,7 @@
 import torch
-
-
 def wct(alpha, cf, sf, s1f=None, beta=None):
-
-    # content image whitening
-    cf = cf.double() # feature maps 
+   # content image whitening
+  cf = cf.double() # feature maps 
     c_channels, c_width, c_height = cf.size(0), cf.size(1), cf.size(2)
     cfv = cf.view(c_channels, -1)  # c x (h x w) feature maps matrix
 
@@ -17,10 +14,10 @@ def wct(alpha, cf, sf, s1f=None, beta=None):
 
     k_c = c_channels
     # 奇异值分解过后，对角矩阵（size=1 x c） 特征值是从大到小排序的， 当特征值小于固定的阈值 1e-5， 将其视为0 ，截去 
-    # for i in range(c_channels):   
-    #     if c_e[i] < 0.00001:
-    #         k_c = i
-    #         break
+    for i in range(c_channels):   
+        if c_e[i] < 0.00001:
+            k_c = i
+            break
     c_d = (c_e[0:k_c]).pow(-0.5)
 
     # c_v 是 按照列 排列了 特征向量
@@ -41,10 +38,10 @@ def wct(alpha, cf, sf, s1f=None, beta=None):
     s_u, s_e, s_v = torch.svd(s_covm, some=False)
 
     s_k = c_channels # same number of channels ad content features
-    # for i in range(c_channels):
-    #     if s_e[i] < 0.00001:
-    #         s_k = i
-    #         break
+    for i in range(c_channels):
+        if s_e[i] < 0.00001:
+            s_k = i
+            break
     s_d = (s_e[0:s_k]).pow(0.5)
 
     c_step1 = torch.mm(s_v[:, 0:s_k], torch.diag(s_d))
