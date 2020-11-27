@@ -4,24 +4,26 @@ import torch
 def wct(alpha, cf, sf, s1f=None, beta=None):
 
     # content image whitening
-    cf = cf.double()
+    cf = cf.double() # feature maps 
     c_channels, c_width, c_height = cf.size(0), cf.size(1), cf.size(2)
-    cfv = cf.view(c_channels, -1)  # c x (h x w)
+    cfv = cf.view(c_channels, -1)  # c x (h x w) feature maps matrix
 
     c_mean = torch.mean(cfv, 1) # perform mean for each row
     c_mean = c_mean.unsqueeze(1).expand_as(cfv) # add dim and replicate mean on rows
     cfv = cfv - c_mean # subtract mean element-wise
 
     c_covm = torch.mm(cfv, cfv.t()).div((c_width * c_height) - 1)  # construct covariance matrix
-    c_u, c_e, c_v = torch.svd(c_covm, some=False) # singular value decomposition
+    c_u, c_e, c_v = torch.svd(c_covm, some=False) # singular value decomposition c_u.size = c x c, c_e.size = 1 x c, c_v.size = c x c
 
     k_c = c_channels
-    for i in range(c_channels):
-        if c_e[i] < 0.00001:
-            k_c = i
-            break
+    # 奇异值分解过后，对角矩阵（size=1 x c） 特征值是从大到小排序的， 当特征值小于固定的阈值 1e-5， 将其视为0 ，截去 
+    # for i in range(c_channels):   
+    #     if c_e[i] < 0.00001:
+    #         k_c = i
+    #         break
     c_d = (c_e[0:k_c]).pow(-0.5)
 
+    # c_v 是 按照列 排列了 特征向量
     w_step1 = torch.mm(c_v[:, 0:k_c], torch.diag(c_d))
     w_step2 = torch.mm(w_step1, (c_v[:, 0:k_c].t()))
     whitened = torch.mm(w_step2, cfv)
@@ -39,10 +41,10 @@ def wct(alpha, cf, sf, s1f=None, beta=None):
     s_u, s_e, s_v = torch.svd(s_covm, some=False)
 
     s_k = c_channels # same number of channels ad content features
-    for i in range(c_channels):
-        if s_e[i] < 0.00001:
-            s_k = i
-            break
+    # for i in range(c_channels):
+    #     if s_e[i] < 0.00001:
+    #         s_k = i
+    #         break
     s_d = (s_e[0:s_k]).pow(0.5)
 
     c_step1 = torch.mm(s_v[:, 0:s_k], torch.diag(s_d))
